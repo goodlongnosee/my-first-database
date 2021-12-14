@@ -156,7 +156,7 @@ export default {
             arr = [];
             arr.push(obj);
             this.changeSearchList(arr);
-            console.log("长度为0", this.searchList);
+            // console.log("长度为0", this.searchList);
             localStorage.setItem("searchList", JSON.stringify(this.searchList));
             return;
           }
@@ -197,7 +197,9 @@ export default {
         if (this.searchValue.length > 0) {
           this.isLoading = true;
           this.axios
-            .get(`https://apis.netstart.cn/maoyan/search/movies?keyword=${this.searchValue}&ci=1`)
+            .get(
+              `https://apis.netstart.cn/maoyan/search/movies?keyword=${this.searchValue}&ci=1`
+            )
             .then((res) => {
               // console.log(res.data);
               //   console.log(1);
@@ -258,13 +260,13 @@ export default {
         this.t = setTimeout(() => {
           let obj = { name: this.searchValue, id: new Date().getDate() };
           let arr = JSON.parse(localStorage.getItem("searchList"));
-          console.log("本地列表", arr);
+          // console.log("本地列表", arr);
           let newArr = [];
           if (arr == null || arr == "" || arr.length == 0) {
             arr = [];
             arr.push(obj);
             this.changeSearchList(arr);
-            console.log("长度为0", this.searchList);
+            // console.log("长度为0", this.searchList);
             localStorage.setItem("searchList", JSON.stringify(this.searchList));
             return;
           }
@@ -274,7 +276,7 @@ export default {
               newArr.push(arr[i]);
             }
             this.changeSearchList(newArr);
-            console.log("长度不为0", this.searchList);
+            // console.log("长度不为0", this.searchList);
             localStorage.setItem("searchList", JSON.stringify(this.searchList));
           }
         }, 3000);
@@ -313,18 +315,20 @@ export default {
   mounted() {
     let arr = JSON.parse(localStorage.getItem("searchList"));
     // console.log("mounted", arr);
-    let newar = [];
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i] !== null || arr[i] != undefined) {
-        newar.unshift(arr[i]);
+    if (arr != null) {
+      let newar = [];
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i] !== null || arr[i] != undefined) {
+          newar.unshift(arr[i]);
+        }
       }
-    }
 
-    this.changeSearchList(newar);
+      this.changeSearchList(newar);
+    }
 
     // 热门搜索
     this.axios
-      .get("https://apis.netstart.cn/maoyansearch/suggest?kw=电影&cityId=1")
+      .get("https://apis.netstart.cn/maoyan/search/suggest?kw=电影&cityId=1")
       .then((res) => {
         // console.log(res.data)
         if (res.data.success) {
@@ -335,7 +339,7 @@ export default {
         console.log("获取失败", err);
       });
     this.axios
-      .get("https://apis.netstart.cn/maoyansearch/suggest?kw=影&cityId=1")
+      .get("https://apis.netstart.cn/maoyan/search/suggest?kw=影&cityId=1")
       .then((res) => {
         // console.log(res.data)
         if (res.data.success) {

@@ -143,7 +143,7 @@ export default {
       this.videoUrl = "";
     },
     playVideo(url, tit, videoId,authorUrl,index) {
-      this.isPlayStop = false;
+      this.isPlayStop = true;
       this.videoTit = tit;
       this.isPlay = true;
       this.videoUrl = url;
