@@ -1,5 +1,5 @@
 <template>
     <div>
-        show
+        Show-
     </div>
 </template>

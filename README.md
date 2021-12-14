@@ -1,19 +1,23 @@
-# game
+## 游娱电影
+## 简介
+    - 游娱电影是一个观影平台，提供了在线购票服务。
+    - 同时，游娱电影还提供电影预告片、票房查询、电影排行榜、影视资讯等信息。
+    - 本项目采用vue-router、vue-cli、vuex等技术,组件化思想进行开发。
+## 功能界面
+    - 电影/影院
+        + 热映
+            > 最受好评
+            > 影片详情
+            > 购票
+        + 影院
+        + 待映
+        + 经典电影
+        + 搜索
+        + 地理位置
+    - 视频
+    - 小视频
+    - 演出
+    - 我的
+        + 未登录
+        + 已登录
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

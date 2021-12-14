@@ -24,14 +24,14 @@
         />
         <!-- @click="myEmpty" -->
         <button v-if="searchValue" @click="myEmpty" class="close">x</button>
-        <button>取消</button>
+        <button @click="myEmpty">取消</button>
       </div>
     </div>
     <div v-if="!searchValue" class="sear_history">
       <ul>
         <li v-for="item in searchList" :key="item.id">
           <img src="https://s4.ax1x.com/2021/12/08/oRUGOH.png" alt="" />
-          <span>{{ item.name }}</span>
+          <span @click="getSearchValue(item.name)">{{ item.name }}</span>
           <!-- @click="myDelete(item.id)" -->
           <button @click="myDelete(item.id)">×</button>
         </li>
@@ -40,20 +40,19 @@
     <div v-if="!searchValue" class="search_advice">
       <div class="advice_hot">热门搜索</div>
       <ul>
-        <li><button>长津湖</button></li>
-        <li><button>长津湖22</button></li>
-        <li><button>长津</button></li>
-        <li><button>长津湖555555</button></li>
-        <li><button>长津</button></li>
-        <li><button>长津21</button></li>
-        <li><button>长津211231</button></li>
-        <li><button>长津2112</button></li>
+        <li
+          @click="getSearchValue(item.nm)"
+          v-for="item in adviceList"
+          :key="item.id"
+        >
+          <button>{{ item.nm }}</button>
+        </li>
       </ul>
     </div>
-    <div v-if="searchValue && movieList" class="movie_list">
+    <div v-if="ismovie" class="movie_list">
       <div class="movie_tit">电影/电视剧/综艺</div>
       <ul>
-        <li v-for="item,index in movieList" :key="index">
+        <li @click="getItem(item.id)" v-for="item in movieList" :key="item.id">
           <div class="img_box">
             <img :src="item.poster" alt="" />
           </div>
@@ -79,7 +78,8 @@
       </ul>
       <div class="more_movie">查看全部{{ allMovie }}部影视剧</div>
     </div>
-    <div v-if="searchValue && cinemaList" class="cinema_list">
+    <!-- v-if="searchValue && cinemaList"  -->
+    <div v-if="ismovie" class="cinema_list">
       <div class="cinema_tit">影院</div>
       <ul>
         <li>
@@ -109,6 +109,9 @@
       </ul>
       <div class="all">查看全部31家电影院</div>
     </div>
+    <div v-if="isLoading" class="loading">
+      <img src="https://s4.ax1x.com/2021/12/07/ocZHRU.gif" alt="" />
+    </div>
   </div>
 </template>
 <script>
@@ -120,21 +123,25 @@ export default {
       searchValue: "",
       timer: null,
       t: null,
-      movieList: false,
-      cinemaList: false,
+      ismovie: false,
+      movieList: [],
+      cinemaList: [],
       allMovie: 0,
       allCinema: 0,
+      adviceList: [],
+      isLoading: false,
     };
   },
   methods: {
-    ...mapMutations(["changeSearchList"]),
+    ...mapMutations(["changeSearchList", "changeMovieDetail"]),
     myEmpty() {
       this.searchValue = "";
-      console.log(1)
+      this.ismovie = false;
+      this.movieList = [];
     },
     mySearch() {
       // 处理历史记录
-      
+
       if (this.t !== null) {
         clearTimeout(this.t);
       }
@@ -153,17 +160,27 @@ export default {
             localStorage.setItem("searchList", JSON.stringify(this.searchList));
             return;
           }
-          if (arr.length != 0) {
+          if (arr.length > 0) {
+            // console.log(arr)
+            arr.unshift(obj);
             let n = 0;
-            for (let i = 0; i < 3; i++) {
-              if (arr[i] !== undefined) {
-                n++;
-                newArr.push(arr[n]);
-                if (n > 2) {
-                  break;
-                }
+            for (let i = 0; i < arr.length; i++) {
+              //   if (arr[i] !== undefined) {
+              //     newArr.push(arr[n]);
+
+              //     if (n > 2) {
+              //       break;
+              //     }
+
+              //     n++;
+              //   }
+              // console.log(arr[i])
+              if (i >= 3) {
+                break;
               }
+              newArr.push(arr[i]);
             }
+
             this.changeSearchList(newArr);
             // console.log("长度不为0", this.searchList);
             localStorage.setItem("searchList", JSON.stringify(this.searchList));
@@ -172,51 +189,57 @@ export default {
       }, 3000);
 
       // 处理搜索结果
-      if (!this.timer) {
+      if (this.timer !== null) {
         //   console.log(this.timer)
         clearTimeout(this.timer);
       }
       this.timer = setTimeout(() => {
-        this.axios
-          .get(`/search/movies?keyword=${this.searchValue}&ci=1`)
-          .then((res) => {
-            // console.log(res.data);
-            if (res.data) {
-              this.movieList = [];
-              for (let i = 0; i < 3; i++) {
-                this.movieList.push(res.data[i]);
+        if (this.searchValue.length > 0) {
+          this.isLoading = true;
+          this.axios
+            .get(`https://apis.netstart.cn/maoyan/search/movies?keyword=${this.searchValue}&ci=1`)
+            .then((res) => {
+              // console.log(res.data);
+              //   console.log(1);
+              if (res.data) {
+                for (let i = 0; i < 3; i++) {
+                  this.movieList.push(res.data[i]);
+                }
+                this.ismovie = true;
+                this.allMovie = res.data.length;
+                this.isLoading = false;
               }
-              this.allMovie = res.data.length;
-            }
-          })
-          .catch((err) => {
-            console.log("获取失败", err);
-          });
+            })
+            .catch((err) => {
+              console.log("获取失败", err);
+            });
 
-        this.axios
-          .get(`/search/cinemas?keyword=${this.searchValue}&ci=1`)
-          .then((res) => {
-            // console.log(res.data);
-            if (res.data) {
-              for (let i = 0; i < 2; i++) {
-                this.cinemaList = [];
-                this.cinemaList.push(res.data[i]);
-                this.allCinema = res.data.length;
-              }
-            }
-          })
-          .catch((err) => {
-            console.log("获取失败", err);
-          });
+          // this.axios
+          //   .get(`/search/cinemas?keyword=${this.searchValue}&ci=1`)
+          //   .then((res) => {
+          //     // console.log(res.data);
+          //     if (res.data) {
+          //       for (let i = 0; i < 2; i++) {
+          //         this.cinemaList = [];
+          //         this.cinemaList.push(res.data[i]);
+          //         this.allCinema = res.data.length;
+          //       }
+          //     }
+          //   })
+          //   .catch((err) => {
+          //     console.log("获取失败", err);
+          //   });
+        }
       }, 300);
 
       if (this.searchValue.length == 0) {
-        this.movieList = false;
         this.cinemaList = false;
+        this.ismovie = false;
+        this.movieList = [];
       }
     },
     myDelete(Id) {
-      console.log(Id);
+      //   console.log(Id);
       let arr = JSON.parse(localStorage.getItem("searchList"));
       for (let i = 0; i < arr.length; i++) {
         if (arr[i].id == Id) {
@@ -259,6 +282,30 @@ export default {
         clearTimeout(this.t);
       }
     },
+    getSearchValue(value) {
+      if (value.length > 3) {
+        // console.log(value.splice(0, 3).join(""));
+        value = value.split("");
+        this.searchValue = value.splice(0, 3).join("");
+      } else {
+        this.searchValue = value;
+      }
+      this.mySearch();
+    },
+    getItem(movieId) {
+      // console.log(movieId)
+      this.isLoading = true;
+      this.axios
+        .get(`https://apis.netstart.cn/maoyan/movie/detail?movieid=${movieId}`)
+        .then((res) => {
+          this.changeMovieDetail(res.data);
+          this.$router.push({ path: "/videoDetail" });
+          this.isLoading = false;
+        })
+        .catch((err) => {
+          console.log(err, "获取失败");
+        });
+    },
   },
   computed: {
     ...mapState(["searchList"]),
@@ -274,6 +321,30 @@ export default {
     }
 
     this.changeSearchList(newar);
+
+    // 热门搜索
+    this.axios
+      .get("https://apis.netstart.cn/maoyansearch/suggest?kw=电影&cityId=1")
+      .then((res) => {
+        // console.log(res.data)
+        if (res.data.success) {
+          this.adviceList = res.data.movies.list;
+        }
+      })
+      .catch((err) => {
+        console.log("获取失败", err);
+      });
+    this.axios
+      .get("https://apis.netstart.cn/maoyansearch/suggest?kw=影&cityId=1")
+      .then((res) => {
+        // console.log(res.data)
+        if (res.data.success) {
+          this.adviceList = this.adviceList.concat(res.data.movies.list);
+        }
+      })
+      .catch((err) => {
+        console.log("获取失败", err);
+      });
   },
 };
 </script>
@@ -319,9 +390,10 @@ export default {
       img {
         position: absolute;
         width: 18px;
-        top: 50%;
+        height: 18px;
+        top: 0;
         left: 20px;
-        margin-top: -10px;
+        margin-top: 15px;
       }
       input {
         width: 100%;
@@ -540,6 +612,13 @@ export default {
       font-size: 16px;
       background-color: #f0f0f0;
     }
+  }
+  .loading {
+    width: 40px;
+    position: fixed;
+    top: 108px;
+    left: 50%;
+    margin-left: -20px;
   }
 }
 </style>

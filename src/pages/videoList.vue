@@ -1,12 +1,16 @@
 <template>
   <nav class="videoList">
+    <div v-if="jumpLoading" class="jump">
+      <img src="https://s4.ax1x.com/2021/12/07/ocZHRU.gif" alt="" />
+    </div>
     <div v-if="!isLoading" class="loading">
       <img src="https://s4.ax1x.com/2021/12/07/oc9Y8A.gif" alt="" />
     </div>
     <ul v-if="isLoading">
       <li @click="getItem(item.id)" v-for="item in videoList" :key="item.id">
         <div class="img_box">
-          <img :src="item.img" alt="" />
+          <!-- <img :src="item.img" alt="" /> -->
+          <img src="https://img0.baidu.com/it/u=3347450064,1264909238&fm=26&fmt=auto" alt="" />
         </div>
         <div class="video_msg">
           <div class="video_title">{{ item.nm }}</div>
@@ -21,6 +25,7 @@
           <div v-if="item.showInfo" class="showinfo">{{ item.showInfo }}</div>
           <div class="button">
             <button
+              @click.stop="BuyTicket(item.id)"
               :style="`box-shadow:0 0 2px 2px ${item.showStateButton.shadowColor};background:${item.showStateButton.color};color:white`"
             >
               {{ item.showStateButton.content }}
@@ -43,15 +48,44 @@ export default {
     isLoading: Boolean,
     fixLoading: Boolean,
   },
+  data() {
+    return {
+      jumpLoading: false,
+    };
+  },
   methods: {
-    ...mapMutations(["changeMovieDetail", "changeUserInfo"]),
+    ...mapMutations(["changeMovieDetail", "changeUserInfo", "changeBuyTicket","changeTicketDate"]),
+    BuyTicket(videoId) {
+      this.axios
+        .get(`https://apis.netstart.cn/maoyan/movie/intro?movieid=${videoId}`)
+        .then((res) => {
+          // console.log(res.data.data.movie)
+          this.changeBuyTicket(res.data.data.movie);
+        })
+        .catch((err) => {
+          console.log(err);
+        }),
+        this.axios
+          .get(`https://apis.netstart.cn/maoyan/movie/showdays?movieId=${videoId}&cityId=20`)
+          .then((res) => {
+            // this.cinemaTime = res.data;
+            // console.log(res.data.data.dates)
+            this.changeTicketDate(res.data.data.dates)
+          })
+          .catch((err) => {
+            console.log("获取失败", err);
+          });
+      this.$router.push({ path: "/BuyTicket" });
+    },
     getItem(videoId) {
+      this.jumpLoading = true;
       this.axios
         .get(`https://apis.netstart.cn/maoyan/movie/detail?movieid=${videoId}`)
         .then((res) => {
           this.changeMovieDetail(res.data);
 
           this.$router.push({ path: "/videoDetail" });
+          this.jumpLoading = false;
         })
         .catch((err) => {
           console.log("获取失败");
@@ -79,6 +113,18 @@ export default {
   background-color: #fff;
   border-top: 12px solid #f0f0f0;
   padding-bottom: 30px;
+  .jump {
+    width: 30px;
+    height: 30px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-left: -15px;
+    margin-top: -15px;
+    img {
+      width: 100%;
+    }
+  }
   .loading {
     width: 100%;
     text-align: center;
@@ -97,10 +143,13 @@ export default {
       box-sizing: border-box;
       border-bottom: 1px solid #ccc;
       .img_box {
-        flex-basis: 80px;
+        width: 90px;
+        height: 110px;
+        box-sizing: border-box;
         margin-right: 10px;
+        border: 1px solid #ccc;
         img {
-          width: 80px;
+          width: 100%;
           height: 110px;
         }
       }

@@ -3,10 +3,13 @@
     class="videodetail"
     :style="`background:${movieDetail.movie.backgroundColor};`"
   >
-    <div class="video_title">猫眼电影 > {{ movieDetail.movie.nm }}</div>
+    <div class="video_title">
+      <span @click="upPage">猫眼电影</span> > {{ movieDetail.movie.nm }}
+    </div>
     <div class="detail_box">
       <div class="img_box">
-        <img :src="movieDetail.movie.img" alt="" />
+        <img @click="VideoPlay" :src="movieDetail.movie.img" alt="" />
+        <div class="play"></div>
       </div>
       <div class="detail_content">
         <div class="video_name">
@@ -27,13 +30,29 @@
       </div>
     </div>
     <div class="btn_box">
-      <button>
-        <img src="https://s4.ax1x.com/2021/12/07/o6eruj.png" alt="" />
-        <span>想看</span>
+      <button @click="myWish(movieDetail.movie.id)">
+        <img
+          :src="
+            isWish == '想看'
+              ? 'https://s4.ax1x.com/2021/12/07/o6eruj.png'
+              : 'https://s1.ax1x.com/2021/12/09/ohGRT1.png'
+          "
+          alt=""
+        />
+        <!-- <img src="https://s4.ax1x.com/2021/12/07/o6eruj.png" alt="" /> -->
+        <span>{{ isWish }}</span>
       </button>
-      <button>
-        <img src="https://s4.ax1x.com/2021/12/07/o6esDs.png" alt="" />
-        <span>看过</span>
+      <button @click="myLook(movieDetail.movie.id)">
+        <img
+          :src="
+            isLook == '看过'
+              ? 'https://s4.ax1x.com/2021/12/07/o6esDs.png'
+              : 'https://s4.ax1x.com/2021/12/07/o6eBvQ.png'
+          "
+          alt=""
+        />
+        <!-- <img src="https://s4.ax1x.com/2021/12/07/o6esDs.png" alt="" /> -->
+        <span>{{ isLook }}</span>
       </button>
     </div>
     <div class="score_box">
@@ -98,20 +117,19 @@
             ></span>
           </p>
         </div>
-        
       </div>
       <div v-if="movieDetail.reputation.movieRank" class="top">
-          <div class="left">
-            <p>TOP</p>
-            <p>{{ movieDetail.reputation.movieRank }}</p>
-          </div>
-          <div class="right">
-            <p>
-              {{ new Date().getFullYear() }}年{{ new Date().getMonth() + 1 }}月
-            </p>
-            <p>{{ movieDetail.reputation.secondWord }}</p>
-          </div>
+        <div class="left">
+          <p>TOP</p>
+          <p>{{ movieDetail.reputation.movieRank }}</p>
         </div>
+        <div class="right">
+          <p>
+            {{ new Date().getFullYear() }}年{{ new Date().getMonth() + 1 }}月
+          </p>
+          <p>{{ movieDetail.reputation.secondWord }}</p>
+        </div>
+      </div>
       <div v-if="movieDetail.movie.scm" class="other">
         <img src="https://s4.ax1x.com/2021/12/07/oyvd9P.png" alt="" />
         <span>{{ movieDetail.movie.scm }}</span>
@@ -121,10 +139,12 @@
     <div class="brief">
       <div class="top_tit">
         <span>简介</span>
-        <button>{{ isRan }}<span>∨</span></button>
+        <button @click="showText">
+          {{ isRan }}<span :class="isShow == true ? 'active' : ''">∨</span>
+        </button>
       </div>
       <div class="content_box">
-        <p>
+        <p :class="isShow == false ? 'active' : ''">
           答案是大师大卫带出来那种开心呢擦去说的阿斯顿；阿斯顿答案是大师大卫带出来那种开心呢擦去说的阿斯顿；阿斯顿答案是大师大卫带出来那种开心呢擦去说的阿斯顿；阿斯顿答案是大师大卫带出来那种开心呢擦去说的阿斯顿；阿斯顿答案是大师大卫带出来那种开心呢擦去说的阿斯顿；阿斯顿
         </p>
       </div>
@@ -137,13 +157,17 @@
       </div>
       <nav>
         <ul>
-          <li v-for="item in starList" :key="item.id">
+          <li
+            v-for="(item, index) in movieDetail.celebrities"
+            :key="index + Math.random()"
+          >
             <div class="img_box">
               <img src="" alt="" />
+              <!-- <img :src="item.avatar" alt="" /> -->
             </div>
             <div class="star_msg">
-              <div class="name">{{ item.cnm }}</div>
-              <div class="post">{{ item.desc }}</div>
+              <div v-if="item.cnm" class="name">{{ item.cnm }}</div>
+              <div v-if="item.desc" class="post">{{ item.desc }}</div>
             </div>
           </li>
         </ul>
@@ -153,6 +177,7 @@
     <div
       :style="`background:${movieDetail.movie.backgroundColor};`"
       class="video_com"
+      v-if="movieDetail.feedVideos"
     >
       <div class="video_com_tit">
         <span>视频推荐</span>
@@ -160,7 +185,10 @@
       </div>
       <nav>
         <ul>
-          <li v-for="item in movieDetail.feedVideos.feeds" :key="item.id">
+          <li
+            v-for="(item, index) in movieDetail.feedVideos.feeds"
+            :key="index + Math.random()"
+          >
             <div class="video_box">
               <img v-if="item.images[0].url" :src="item.images[0].url" alt="" />
               <div class="play_box"></div>
@@ -171,6 +199,7 @@
     </div>
     <!-- 剧照 -->
     <div
+      v-if="movieDetail.movie.photos"
       :style="`background:${movieDetail.movie.backgroundColor};`"
       class="drama"
     >
@@ -180,10 +209,19 @@
       </div>
       <nav>
         <ul>
-          <li v-for="(item, index) in movieDetail.movie.photos" :key="index">
+          <li
+            v-for="(item, index) in movieDetail.movie.photos"
+            :key="index + Math.random()"
+          >
             <div class="video_box">
-              <img v-if="item" :src="item" alt="" />
-              <div class="play_box"></div>
+              <img src="" alt="" />
+              <!-- <img
+                @touchmove="myTouchMove"
+                @click="bigImg(index)"
+                v-if="item"
+                :src="item"
+                alt=""
+              /> -->
             </div>
           </li>
         </ul>
@@ -191,6 +229,7 @@
     </div>
     <!-- 票房 -->
     <div
+      v-if="movieDetail.mbox.mbox"
       class="profit"
       :style="`background:${movieDetail.movie.backgroundColor};`"
     >
@@ -199,24 +238,51 @@
       </div>
       <div class="pro_detail">
         <div class="left">
-          <p>2</p>
+          <p>{{ movieDetail.mbox.mbox.lastDayRank }}</p>
           <p>昨日排名</p>
         </div>
         <div class="center">
-          <p>13,049</p>
+          <p>{{ movieDetail.mbox.mbox.firstWeekBox }}</p>
           <p>首周票房(万)</p>
         </div>
         <div class="right">
-          <p>76627</p>
+          <p>{{ movieDetail.mbox.mbox.sumBox }}</p>
           <p>累计票房(万)</p>
         </div>
       </div>
+    </div>
+
+    <div v-if="isBigImg" class="big_img">
+      <img
+        :style="`margin-left:${imgX}px;`"
+        @touchmove="toggleImg"
+        @touchend="myTouchEnd"
+        @click="bigImg"
+        :src="bigUrl"
+        alt=""
+      />
+    </div>
+    <div v-if="isVideoPlay" class="video_play">
+      <div class="play_tit">
+        <div @click="VideoPlay" class="return">
+          <img src="https://s4.ax1x.com/2021/12/07/ocGds0.png" alt="" />
+          <span>
+            {{ movieDetail.movie.videoName }}
+          </span>
+        </div>
+      </div>
+      <video
+        :autoplay="isVideoPlay == true ? 'autoplay' : ''"
+        controls
+        loop
+        :src="movieDetail.movie.videourl"
+      ></video>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 export default {
   name: "videoDetail",
   data() {
@@ -228,16 +294,158 @@ export default {
       isRan: "展开",
       starList: [],
       comVideo: [],
+      isWish: "想看",
+      isLook: "看过",
+      flag: false,
+      isShow: false,
+      isBigImg: false,
+      bigUrl: "",
+      imgX: 0,
+      imgIndex: 0,
+      isVideoPlay: false,
     };
   },
+  methods: {
+    ...mapMutations(["changeWishList", "changeLookList"]),
+    VideoPlay() {
+      this.isVideoPlay = !this.isVideoPlay;
+    },
+    toggleImg(e) {
+      // console.log(e.target.offsetWidth)
+      this.imgX = e.touches[0].pageX - e.target.offsetWidth / 2;
+      if (this.imgX > 100) {
+        this.imgX = 100;
+      }
+      if (this.imgX < -100) {
+        this.imgX = -100;
+      }
+    },
+    myTouchEnd() {
+      if (this.imgX <= -100) {
+        this.imgIndex++;
+        if (this.imgIndex > this.movieDetail.movie.photos.length - 1) {
+          this.imgIndex = this.movieDetail.movie.photos.length - 1;
+        }
+        this.bigUrl = this.movieDetail.movie.photos[this.imgIndex];
+        this.imgX = 0;
+      } else if (this.imgX >= 100) {
+        this.imgIndex--;
+        if (this.imgIndex < 0) {
+          this.imgIndex = 0;
+        }
+        this.bigUrl = this.movieDetail.movie.photos[this.imgIndex];
+        this.imgX = 0;
+      }
+    },
+    bigImg(index) {
+      this.imgIndex = index;
+      this.isBigImg = !this.isBigImg;
+      this.bigUrl = this.movieDetail.movie.photos[this.imgIndex];
+    },
+    myTouchMove() {
+      this.isBigImg = false;
+    },
+    myWish(movieId) {
+      // console.log(res.data)
+      let arr = JSON.parse(localStorage.getItem("wishList"));
+      // console.log(arr)
+      if (arr == null || arr == undefined || arr == "" || arr == []) {
+        arr = [];
+        arr.push(movieId + "");
+        this.changeWishList(arr);
+        localStorage.setItem("wishList", JSON.stringify(arr));
+        this.isWish = "已想看";
+        return;
+      }
+      if (arr.length > 0) {
+        let len = arr.length;
+        for (let i = 0; i < len; i++) {
+          if (arr[i] == movieId + "") {
+            arr.splice(i, 1);
+            i--;
+            this.flag = true;
+            this.isWish = "想看";
+          }
+        }
+        if (!this.flag) {
+          arr.push(movieId + "");
+          this.isWish = "已想看";
+        }
+        this.flag = false;
+        this.changeWishList(arr);
+        localStorage.setItem("wishList", JSON.stringify(arr));
+      }
+    },
+    myLook(movieId) {
+      let arr = JSON.parse(localStorage.getItem("lookList"));
+      // console.log(arr)
+      if (arr == null || arr == undefined || arr == "" || arr == []) {
+        arr = [];
+        arr.push(movieId + "");
+        this.changeLookList(arr);
+        localStorage.setItem("lookList", JSON.stringify(arr));
+        this.isLook = "已看过";
+        return;
+      }
+      if (arr.length > 0) {
+        let len = arr.length;
+        for (let i = 0; i < len; i++) {
+          if (arr[i] == movieId + "") {
+            arr.splice(i, 1);
+            i--;
+            this.flag = true;
+            this.isLook = "看过";
+          }
+        }
+        if (!this.flag) {
+          arr.push(movieId + "");
+          this.isLook = "已看过";
+        }
+        this.flag = false;
+        this.changeLookList(arr);
+        localStorage.setItem("lookList", JSON.stringify(arr));
+      }
+    },
+    upPage() {
+      this.$router.go(-1);
+    },
+    showText() {
+      if (this.isRan == "展开") {
+        this.isRan = "收起";
+      } else {
+        this.isRan = "展开";
+      }
+      this.isShow = !this.isShow;
+    },
+  },
   computed: {
-    ...mapState(["movieDetail"]),
+    ...mapState(["movieDetail", "isWishList", "isLookList"]),
   },
   mounted() {
-    let starList = this.movieDetail.celebrities;
-    for (let i = 0; i < 16; i++) {
-      this.starList.push(starList[i]);
+    // console.log(this.movieDetail);
+    let wishList = JSON.parse(localStorage.getItem("wishList"));
+    let lookList = JSON.parse(localStorage.getItem("lookList"));
+    // console.log(wishList,lookList)
+    if (wishList !== null) {
+      for (let j = 0; j < wishList.length; j++) {
+        if (wishList[j] == this.movieDetail.movie.id) {
+          this.isWish = "已想看";
+        }
+      }
     }
+    if (lookList !== null) {
+      for (let q = 0; q < wishList.length; q++) {
+        if (lookList[q] == this.movieDetail.movie.id) {
+          this.isLook = "已看过";
+        }
+      }
+    }
+
+    // let starList = this.movieDetail.celebrities;
+    // console.log(this.movieDetail.celebrities)
+    // for (let i = 0; i < 16; i++) {
+    //   this.starList.push(starList[i]);
+    // }
     // console.log(this.movieDetail.movie.photos)
     let wish = this.movieDetail.movie.wish;
     let watched = this.movieDetail.movie.watched;
@@ -284,10 +492,39 @@ export default {
   .detail_box {
     display: flex;
     .img_box {
+      width: 100px;
+      height: 140px;
       margin-right: 12px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #ccc;
+      padding: 1px 1px;
+      box-shadow: 0 0 10px 2px #ccc inset;
       img {
         width: 100px;
         height: 140px;
+      }
+      .play {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #ccc;
+        position: absolute;
+        bottom: -10px;
+        left: -10px;
+        &::after {
+          display: block;
+          content: "";
+          width: 0;
+          height: 0;
+          border: 5px solid transparent;
+          border-left: 5px solid #000;
+          border-left-width: 7px;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          margin-top: -7px;
+        }
       }
     }
     .detail_content {
@@ -304,8 +541,6 @@ export default {
       }
       .star {
         margin-bottom: 5px;
-      }
-      .show_video {
       }
     }
   }
@@ -423,49 +658,48 @@ export default {
           }
         }
       }
-      
     }
     .top {
-        height: 60px;
-        display: flex;
-        justify-content: flex-start;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-        padding: 3px 5px;
+      height: 60px;
+      display: flex;
+      justify-content: flex-start;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      padding: 3px 5px;
+      box-sizing: border-box;
+      .left {
+        background-color: rgba(207, 162, 12, 0.199);
+        border-radius: 6px;
+        padding: 3px 10px;
         box-sizing: border-box;
-        .left {
-          background-color: rgba(207, 162, 12, 0.199);
-          border-radius: 6px;
-          padding: 3px 10px;
-          box-sizing: border-box;
-          margin-right: 4px;
-          p {
-            text-align: center;
-            color: #d49d37;
-            &:nth-of-type(1) {
-              font-size: 12px;
-            }
-            &:nth-of-type(2) {
-              font-size: 18px;
-              color: #f7c465;
-            }
+        margin-right: 4px;
+        p {
+          text-align: center;
+          color: #d49d37;
+          &:nth-of-type(1) {
+            font-size: 12px;
           }
-        }
-        .right {
-          p {
-            color: #d49d37;
-            font-size: 14px;
-            &:nth-of-type(1) {
-              margin: 3px 0;
-            }
-            &:nth-of-type(2) {
-              font-size: 18px;
-              color: wheat;
-              letter-spacing: 1px;
-            }
+          &:nth-of-type(2) {
+            font-size: 18px;
+            color: #f7c465;
           }
         }
       }
+      .right {
+        p {
+          color: #d49d37;
+          font-size: 14px;
+          &:nth-of-type(1) {
+            margin: 3px 0;
+          }
+          &:nth-of-type(2) {
+            font-size: 18px;
+            color: wheat;
+            letter-spacing: 1px;
+          }
+        }
+      }
+    }
     .other {
       height: 36px;
       line-height: 36px;
@@ -496,13 +730,20 @@ export default {
       display: flex;
       justify-content: space-between;
       margin-bottom: 8px;
+      padding-right: 12px;
+      box-sizing: border-box;
       button {
         background-color: transparent;
         color: #b6b6b6;
         font-size: 14px;
+        position: relative;
         span {
-          font-size: 16px;
+          font-size: 14px;
           margin-left: 2px;
+          position: absolute;
+          &.active {
+            transform: rotate(-180deg) translateY(-1px);
+          }
         }
       }
     }
@@ -512,10 +753,12 @@ export default {
       p {
         line-height: 28px;
         letter-spacing: 1px;
-        // display: -webkit-box;
-        // -webkit-box-orient: vertical;
-        // -webkit-line-clamp: 3;
-        // overflow: hidden;
+        &.active {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          overflow: hidden;
+        }
       }
     }
   }
@@ -661,6 +904,8 @@ export default {
           width: 140px;
           .video_box {
             width: 140px;
+            // height: 80px;
+            // box-sizing: border-box;
             img {
               width: 100%;
               height: 80px;
@@ -668,6 +913,19 @@ export default {
           }
         }
       }
+    }
+  }
+  .big_img {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 10001;
+    img {
+      width: 100%;
+      margin-top: 50px;
     }
   }
   .profit {
@@ -712,6 +970,35 @@ export default {
           }
         }
       }
+    }
+  }
+  .video_play {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001;
+    background-color: rgba(0, 0, 0, 0.9);
+    .play_tit {
+      padding: 10px 12px;
+      text-align: center;
+      .return {
+        width: 100%;
+        img {
+          width: 25px;
+          vertical-align: middle;
+        }
+        span {
+          vertical-align: middle;
+          font-size: 16px;
+          color: #f0f0f0;
+        }
+      }
+    }
+    video {
+      width: 100%;
+      margin-top: 50px;
     }
   }
 }

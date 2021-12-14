@@ -32,9 +32,9 @@ export default {
     };
   },
   methods: {
-    myThrot(){
-      if(this.throt !== null){
-        clearTimeout(this.throt)
+    myThrot() {
+      if (this.throt !== null) {
+        clearTimeout(this.throt);
       }
       this.throt = setTimeout(() => {
         this.bottomRef();
@@ -68,7 +68,7 @@ export default {
 
             this.fixLoading = true;
             this.axios
-              .get(`/index/moreComingList?movieIds=${arr.join()}`)
+              .get(`https://apis.netstart.cn/maoyan/index/moreComingList?movieIds=${arr.join()}`)
               .then((res) => {
                 // console.log(res.data);
 
@@ -88,7 +88,7 @@ export default {
   },
   mounted() {
     this.axios
-      .get("/index/topRatedMovies")
+      .get("https://apis.netstart.cn/maoyan/index/topRatedMovies")
       .then((res) => {
         this.goodList = res.data;
         this.isLoading = true;
@@ -99,7 +99,7 @@ export default {
         this.isLoading = false;
       });
     this.axios
-      .get("/index/movieOnInfoList")
+      .get("https://apis.netstart.cn/maoyan/index/movieOnInfoList")
       .then((res) => {
         // console.log(res.data);
         // console.log(res.data.movieIds)
@@ -111,13 +111,13 @@ export default {
         console.log("获取失败");
       });
   },
-  beforeRouteEnter(to,from,next){
+  beforeRouteEnter(to, from, next) {
     // console.log(to.name)
     next((vm) => {
       if (to.name == "HotVideo") {
         window.addEventListener("scroll", vm.myThrot);
       }
     });
-  }
+  },
 };
 </script>

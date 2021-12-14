@@ -1,7 +1,8 @@
 <template>
   <div ref="com" class="daiying">
-    <hope-video :hopeList="hopeList"></hope-video>
-    <more-hope :moreList="moreList"></more-hope>
+    <img v-if="loading" class="loading" src="https://s4.ax1x.com/2021/12/07/ocZHRU.gif" alt="">
+    <hope-video @my-click="myRev" :firstLoading="firstLoading" :hopeList="hopeList"></hope-video>
+    <more-hope @my-click="myRev" :isLoading="isLoading" :moreList="moreList"></more-hope>
   </div>
 </template>
 <script>
@@ -18,6 +19,9 @@ export default {
       num2: 2,
       value: "",
       throt: null,
+      firstLoading:false,
+      isLoading:false,
+      loading:false
     };
   },
   components: {
@@ -25,8 +29,12 @@ export default {
     MoreHope,
   },
   methods: {
+    myRev(boo){
+      this.loading = boo;
+    },
     myThrot() {
       if (this.throt !== null) {
+        // console.log(this.throt)
         clearTimeout(this.throt);
       }
       this.throt = setTimeout(() => {
@@ -40,6 +48,7 @@ export default {
       let listHeight = document.body.clientHeight;
       // console.log(scrollTop+windowHeight,listHeight)
       if (scrollTop + windowHeight >= listHeight) {
+        this.isLoading = true;
         let arr = [];
         this.num = this.moreList.length;
 
@@ -56,10 +65,11 @@ export default {
             this.value = arr.join();
             // console.log(this.value);
             this.axios
-              .get(`/index/moreComingList?ci=1&limit=10&movieIds=${this.value}`)
+              .get(`https://apis.netstart.cn/maoyan/index/moreComingList?ci=1&limit=10&movieIds=${this.value}`)
               .then((res) => {
                 this.moreList = this.moreList.concat(res.data.coming);
                 // console.log(res.data.coming);
+                this.isLoading = false;
               })
               .catch((err) => {
                 console.log(err, "获取失败");
@@ -72,17 +82,19 @@ export default {
     }
   },
   mounted() {
+    this.firstLoading = true;
     this.axios
-      .get("/index/mostExpected?ci=1&limit=10&offset=0")
+      .get("https://apis.netstart.cn/maoyan/index/mostExpected?ci=1&limit=10&offset=0")
       .then((res) => {
         // console.log(res.data.coming)
         this.hopeList = res.data.coming;
+        this.firstLoading = false;
       })
       .catch((err) => {
         console.log("获取失败");
       });
     this.axios
-      .get("/index/comingList?ci=1&limit=10")
+      .get("https://apis.netstart.cn/maoyan/index/comingList?ci=1&limit=10")
       .then((res) => {
         // console.log(res.data)
         this.moreList = res.data.coming;
@@ -105,3 +117,18 @@ export default {
   },
 };
 </script>
+
+<style lang='less' scoped>
+.loading {
+  width: 30px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -15px;
+  margin-top: -15px;
+  z-index: 1001;
+  img {
+    width: 100%;
+  }
+}
+</style>

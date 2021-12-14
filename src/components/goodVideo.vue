@@ -19,6 +19,9 @@
         </div>
       </li>
     </ul>
+    <div v-if="jump" class="loading_img">
+      <img src="https://s4.ax1x.com/2021/12/07/ocZHRU.gif" alt="">
+    </div>
   </nav>
 </template>
 <script>
@@ -33,10 +36,16 @@ export default {
       type:Boolean
     }
   },
+  data(){
+    return {
+      jump:false
+    }
+  },
   methods: {
     ...mapMutations(["changeMovieDetail"]),
     getItem(valueId) {
-      console.log(valueId);
+      // console.log(valueId);
+      this.jump = true;
       this.axios
         .get(`https://apis.netstart.cn/maoyan/movie/detail?movieid=${valueId}`)
         .then((res) => {
@@ -44,6 +53,7 @@ export default {
           this.changeMovieDetail(res.data);
 
           this.$router.push({ path: "/videoDetail" });
+          this.jump = false;
         })
         .catch((err) => {
           console.log("获取失败");
@@ -56,6 +66,7 @@ export default {
 .goodList {
   width: 100%;
   background-color: #fff;
+  position: relative;
   .loading {
     width: 100%;
     text-align: center;
@@ -115,6 +126,16 @@ export default {
         overflow: hidden;
         white-space: nowrap;
       }
+    }
+  }
+  .loading_img {
+    width: 40px;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    margin-left: -20px;
+    img {
+      width: 100%;
     }
   }
 }

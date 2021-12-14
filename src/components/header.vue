@@ -8,7 +8,7 @@
         <img src="https://s4.ax1x.com/2021/12/06/os56VU.png" alt="" />
         <nav v-if="isShow" class="list_box">
           <ul>
-            <li><router-link to="/home/homepage/hotvideo">首页</router-link></li>
+            <li><router-link @click.native="getI(0)" to="/home/homepage/hotvideo">首页</router-link></li>
             <li><router-link to="">榜单</router-link></li>
             <li><router-link to="">热点</router-link></li>
             <li><router-link to="">商城</router-link></li>
@@ -19,6 +19,7 @@
   </div>
 </template>
 <script>
+import { mapMutations } from 'vuex'
 export default {
   name:"Header",
   data(){
@@ -27,8 +28,10 @@ export default {
     }
   },
   methods:{
+    ...mapMutations(['changeRouterIndex']),
     getI(i){
-      console.log(i)
+      // console.log(i)
+      this.changeRouterIndex(i)
     }
   }
 }

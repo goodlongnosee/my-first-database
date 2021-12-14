@@ -42,7 +42,6 @@ export default {
   name: "Footer",
   data() {
     return {
-      index: 0,
       routerList: [
         {
           src: "https://s4.ax1x.com/2021/12/06/os5DK0.png",

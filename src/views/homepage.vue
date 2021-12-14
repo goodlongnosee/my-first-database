@@ -1,7 +1,9 @@
 <template>
   <div ref="con" class="homepage">
     <div class="top_list">
-      <div class="city"><span class="cityName">广州</span></div>
+      <div class="city">
+        <span class="cityName"><router-link to="/City">{{cityName}}</router-link></span>
+      </div>
       <nav class="cate_box">
         <ul>
           <li>
@@ -45,8 +47,12 @@
   </div>
 </template>
 <script>
+import { mapState } from 'vuex';
 export default {
   name: "Homepage",
+  computed:{
+    ...mapState(['cityName'])
+  }
 };
 </script>
 <style lang="less" scoped>
@@ -77,8 +83,10 @@ export default {
         height: 40px;
         line-height: 42px;
         font-size: 16px;
-        color: #909090;
         position: relative;
+        a {
+          color: #909090;
+        }
         &::after {
           display: block;
           content: "";
