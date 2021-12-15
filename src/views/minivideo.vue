@@ -326,7 +326,7 @@ export default {
         width: 24px;
         position: absolute;
         left: 12px;
-        top: 14px;
+        top: 8px;
       }
       span {
         vertical-align: middle;
