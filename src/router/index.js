@@ -89,6 +89,14 @@ const routes = [
     path: "/City",
     component: () => import("@/pages/citypage.vue")
   },
+  {
+    path: "/ImgList",
+    component: () => import("@/components/imgAll.vue")
+  },
+  {
+    path: "/StarList",
+    component: () => import("@/components/allStar.vue")
+  },
 ]
 
 const router = new VueRouter({

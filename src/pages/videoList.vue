@@ -9,8 +9,8 @@
     <ul v-if="isLoading">
       <li @click="getItem(item.id)" v-for="item in videoList" :key="item.id">
         <div class="img_box">
-          <!-- <img :src="item.img" alt="" /> -->
-          <img src="https://img0.baidu.com/it/u=3347450064,1264909238&fm=26&fmt=auto" alt="" />
+          <img :src="item.img.replace(/\/w\.h/,'')" alt="" />
+          <!-- <img src="https://img0.baidu.com/it/u=3347450064,1264909238&fm=26&fmt=auto" alt="" /> -->
         </div>
         <div class="video_msg">
           <div class="video_title">{{ item.nm }}</div>

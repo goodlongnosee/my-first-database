@@ -13,7 +13,9 @@ export default new Vuex.Store({
     isLookList:[],
     buyTicket:[],
     ticketDate:[],
-    cityName:"广州"
+    cityName:"广州",
+    allImg:[],
+    allStar:[]
   },
   mutations: {
     changeRouterIndex(state,payload){
@@ -42,6 +44,12 @@ export default new Vuex.Store({
     },
     changeCityName(state,payload){
       state.cityName = payload
+    },
+    changeAllImg(state,payload){
+      state.allImg = payload
+    },
+    changeAllStar(state,payload){
+      state.allStar = payload
     }
   },
   actions: {

@@ -12,8 +12,8 @@
           :key="item.id"
         >
           <div class="img_box">
-            <!-- <img :src="item.img" alt="" /> -->
-            <img src="https://img1.baidu.com/it/u=2989847919,2158109727&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=709" alt="">
+            <img :src="item.img.replace(/\/w\.h/,'')" alt="" />
+            <!-- <img src="https://img1.baidu.com/it/u=2989847919,2158109727&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=709" alt=""> -->
             <p>{{ item.wish }}人想看</p>
           </div>
           <div class="hope_msg">

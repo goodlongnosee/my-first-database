@@ -53,7 +53,6 @@ export default {
   methods: {
     ...mapMutations(["changeMovieDetail"]),
     getItem(valueId) {
-      console.log(valueId);
       this.isLoading = true;
       this.axios
         .get(`https://apis.netstart.cn/maoyan/movie/detail?movieid=${valueId}`)

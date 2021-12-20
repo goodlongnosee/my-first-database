@@ -8,7 +8,7 @@
     </div>
     <div class="detail_box">
       <div class="img_box">
-        <img @click="VideoPlay" :src="movieDetail.movie.img" alt="" />
+        <img @click="VideoPlay" :src="posterImg" alt="" />
         <div class="play"></div>
       </div>
       <div class="detail_content">
@@ -145,7 +145,7 @@
       </div>
       <div class="content_box">
         <p :class="isShow == false ? 'active' : ''">
-          {{movieDetail.movie.dra}}
+          {{ movieDetail.movie.dra }}
         </p>
       </div>
     </div>
@@ -153,17 +153,18 @@
     <div class="star_box">
       <div class="star_title">
         <span>演职人员</span>
-        <button>全部<span>></span></button>
+        <router-link to="/StarList">
+          <button @click="getAllStar(movieDetail.celebrities)">
+            全部<span>></span>
+          </button>
+        </router-link>
       </div>
       <nav>
         <ul>
-          <li
-            v-for="(item, index) in movieDetail.celebrities"
-            :key="index + Math.random()"
-          >
+          <li v-for="(item, index) in starList" :key="index + Math.random()">
             <div class="img_box">
-              <img src="" alt="" />
-              <!-- <img :src="item.avatar" alt="" /> -->
+              <!-- <img src="" alt="" /> -->
+              <img :src="item.avatar.replace(/\/w\.h/, '')" alt="" />
             </div>
             <div class="star_msg">
               <div v-if="item.cnm" class="name">{{ item.cnm }}</div>
@@ -205,7 +206,11 @@
     >
       <div class="drama_tit">
         <span>剧照</span>
-        <button>全部{{ movieDetail.movie.pn }}张<span>></span></button>
+        <router-link to="/ImgList">
+          <button @click="getAllImg(movieDetail.movie.photos)">
+            全部{{ movieDetail.movie.pn }}张<span>></span>
+          </button>
+        </router-link>
       </div>
       <nav>
         <ul>
@@ -214,14 +219,14 @@
             :key="index + Math.random()"
           >
             <div class="video_box">
-              <img src="" alt="" />
-              <!-- <img
+              <!-- <img :src="item.replace(/\/w\.h/, '')" alt="" /> -->
+              <img
                 @touchmove="myTouchMove"
                 @click="bigImg(index)"
                 v-if="item"
-                :src="item"
+                :src="item.replace(/\/w\.h/, '')"
                 alt=""
-              /> -->
+              />
             </div>
           </li>
         </ul>
@@ -254,11 +259,12 @@
 
     <div v-if="isBigImg" class="big_img">
       <img
+        class="myBigImg"
         :style="`margin-left:${imgX}px;`"
         @touchmove="toggleImg"
         @touchend="myTouchEnd"
-        @click="bigImg"
-        :src="bigUrl"
+        @click="hideBigImg"
+        :src="bigUrl.replace(/\/w\.h/, '')"
         alt=""
       />
     </div>
@@ -303,10 +309,23 @@ export default {
       imgX: 0,
       imgIndex: 0,
       isVideoPlay: false,
+      posterImg: "",
+      Stills: [],
     };
   },
   methods: {
-    ...mapMutations(["changeWishList", "changeLookList"]),
+    ...mapMutations([
+      "changeWishList",
+      "changeLookList",
+      "changeAllImg",
+      "changeAllStar",
+    ]),
+    getAllStar(data) {
+      this.changeAllStar(data);
+    },
+    getAllImg(data) {
+      this.changeAllImg(data);
+    },
     VideoPlay() {
       this.isVideoPlay = !this.isVideoPlay;
     },
@@ -341,6 +360,13 @@ export default {
       this.imgIndex = index;
       this.isBigImg = !this.isBigImg;
       this.bigUrl = this.movieDetail.movie.photos[this.imgIndex];
+      setTimeout(() => {
+        let _Top = document.querySelector(".myBigImg").offsetHeight;
+        document.querySelector(".myBigImg").style["marginTop"] = -_Top + "px";
+      }, 10);
+    },
+    hideBigImg(){
+      this.isBigImg = !this.isBigImg;
     },
     myTouchMove() {
       this.isBigImg = false;
@@ -422,7 +448,21 @@ export default {
     ...mapState(["movieDetail", "isWishList", "isLookList"]),
   },
   mounted() {
-    // console.log(this.movieDetail);
+    var str = this.movieDetail.movie.img;
+    // console.log(this.movieDetail.celebrities);
+    // console.log(this.movieDetail.celebrities)
+    // 演员列表
+    let len = this.movieDetail.celebrities.length;
+    let len2 = this.movieDetail.movie.photos.length;
+    for (let i = 0; i < parseInt(len / 10); i++) {
+      this.starList.push(this.movieDetail.celebrities[i]);
+    }
+
+    for (let j = 0; j < parseInt(len2 / 2); j++) {
+      this.Stills.push(this.movieDetail.movie.photos[j]);
+    }
+
+    this.posterImg = str.replace(/\/w\.h/, "");
     let wishList = JSON.parse(localStorage.getItem("wishList"));
     let lookList = JSON.parse(localStorage.getItem("lookList"));
     // console.log(wishList,lookList)
@@ -925,7 +965,9 @@ export default {
     z-index: 10001;
     img {
       width: 100%;
-      margin-top: 50px;
+      position: absolute;
+      top: 50%;
+      left: 0;
     }
   }
   .profit {

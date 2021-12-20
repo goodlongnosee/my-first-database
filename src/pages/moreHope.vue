@@ -6,8 +6,8 @@
           <div class="more_date">{{ item.comingTitle }}</div>
           <div class="more_video">
             <div class="img_box">
-              <!-- <img :src="item.img" alt="" /> -->
-              <img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fww3.sinaimg.cn%2Fmw690%2F007L2iNRly1gwph9c2bfpj31711o71kx.jpg&refer=http%3A%2F%2Fwww.sina.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1642070505&t=7330b7f2be03a1f4f99440386fb0e13e" alt="">
+              <img :src="item.img.replace(/\/w\.h/,'')" alt="" />
+              <!-- <img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fww3.sinaimg.cn%2Fmw690%2F007L2iNRly1gwph9c2bfpj31711o71kx.jpg&refer=http%3A%2F%2Fwww.sina.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1642070505&t=7330b7f2be03a1f4f99440386fb0e13e" alt=""> -->
             </div>
             <div class="more_content">
               <div class="more_tit">{{ item.nm }}</div>
